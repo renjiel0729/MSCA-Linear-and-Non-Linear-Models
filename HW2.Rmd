@@ -1,0 +1,138 @@
+---
+title: "hw2"
+author: "Renjie Liu"
+date: "1/25/2021"
+output: html_document
+---
+3.5 Q4
+Replicate the charts for the Normal distribution shown in section 3.1. Include all 6 charts for each distribution.
+```{r}
+library(ggplot2)
+y <- seq(-0.7,0.7,0.01)
+T <- y/0.15
+ggplot(as.data.frame(cbind(x = y, y = T)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression("T(y) vs y")) + xlab(expression("y")) + ylab(expression("T(y)"))
+
+eta <- 0.1/0.15
+ggplot(as.data.frame(cbind(x = y, y = eta)), aes(x, y)) + geom_line(size = 1, color = "red")+ggtitle (expression(paste(eta, "(", mu, ") vs y"))) + xlab(expression("y")) + ylab(expression(paste(eta, "(", mu, ")")))
+
+A <- (0.1)^2/(2*0.15^2)
+ggplot(as.data.frame(cbind(x = y, y = A)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("A(", mu, ") vs y"))) + xlab(expression("y")) + ylab(expression(paste("A(", mu, ")")))
+
+B <- -(y^2)/(2*0.15^2)-0.5*log(2*pi*0.15^2)
+ggplot(as.data.frame(cbind(x = y, y = B)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("B(y) vs y"))) + xlab(expression("y")) + ylab(expression(paste("B(y)")))
+
+
+f <- exp(T*eta-A+B)
+ggplot(as.data.frame(cbind(x = y, y = f)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("f(y;", mu, ",", sigma, ") vs y"))) + xlab(expression("y")) + ylab(expression(paste("f(y;", mu, ",", sigma, ")")))
+
+F <- cumsum(f)
+ggplot(as.data.frame(cbind(x = y, y = F)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("F(y;", mu, ",", sigma, ") vs y"))) + xlab(expression("y")) + ylab(expression(paste("F(y;", mu, ",", sigma, ")")))
+```
+
+
+Replicate the charts for the Binomial distribution shown in section 3.2. Include all 6 charts for each distribution.
+```{r}
+y <- seq(0,10)
+p <- 0.7
+T <- y
+n<-10
+ggplot(as.data.frame(cbind(x = y, y = T)), aes(x, y)) + geom_line(size = 1, color = "red") + ggtitle (expression("T(y) vs y")) + xlab(expression("y")) + ylab(expression("T(y)"))
+
+eta<- log(p/(1-p))
+ggplot(as.data.frame(cbind(x = y, y = eta)), aes(x, y)) + geom_line(size = 1, color = "red") + ggtitle (expression(paste(eta, "(p) vs y"))) + xlab(expression("y")) + ylab(expression(paste(eta, "(p)")))
+
+A <- -n*log(1-p)
+ggplot(as.data.frame(cbind(x = y, y = A)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("A(p) vs y"))) + xlab(expression("y")) + ylab(expression(paste("A(p)")))
+
+B <- log(factorial(n)/(factorial(y)*factorial(n-y)))
+ggplot(as.data.frame(cbind(x = y, y = B)), aes(x, y)) + geom_line(size = 1, color = "red")+ ggtitle (expression(paste("B(y) vs y"))) + xlab(expression("y")) + ylab(expression(paste("B(y)")))
+
+f <- exp(T*eta-A+B)
+ggplot(as.data.frame(cbind(x = y, y = f)), aes(x, y)) + geom_bar(stat='identity', width = 0.01, color = "red") + ggtitle (expression(paste("f(y;p,n) vs y"))) + xlab(expression("y")) + ylab(expression(paste("f(y;p,n)")))
+
+F <- cumsum(f)
+ggplot(as.data.frame(cbind(x = y, y = F)), aes(x, y)) + geom_bar(stat='identity', width = 0.01, color = "red") + ggtitle (expression(paste("F(y;p,n) vs y"))) + xlab(expression("y")) + ylab(expression(paste("F(y;p,n)")))
+
+```
+
+
+
+load data
+```{r}
+load('1030.lecture-mle.RData')
+```
+
+
+1. Based on the R dataset in the Lab folder (1030.lecture-mle.RData), reproduce the results presented above for the Binomial distribution. Plot results, maximum likelihood estimates and R code must be submitted.
+```{r}
+p1 <- 0.6
+n1 <- dta$binomial$n
+y1 <- dta$binomial$y
+
+l1 <- function(y = y1,p = p1,n=n1){
+  sum(log(choose(n,y)))+log(p)*sum(y)+log(1-p)*sum(n-y)
+}
+
+dl1 <- function(y = y1,p = p1,n=n1){
+  (1/p)*sum(y) - (1/(1-p))*(sum(n)-sum(y))
+}
+
+p.hat <- (sum(y1)/sum(n1))
+p.hat
+
+ggplot(as.data.frame(cbind(x = 1:length(y1), y = y1)), aes(x, y1)) + geom_line(size = 0.1, color = "red")+ xlab(expression("Index")) + ylab(expression(paste("y")))
+
+
+prob <- seq(0.05,0.95,by=0.01)
+
+loglike1 <- sapply(prob,l1,y=y1)
+head(loglike1)
+dloglike1 <- sapply(prob,dl1,y=y1)
+head(dloglike1)
+
+par(mfrow=c(1,2))
+plot(prob,loglike1,type="l",col="red",xlab = "lambda",ylab = "loglike")
+abline(v=p.hat)
+plot(prob,dloglike1,type="l",col="red",xlab = "lambda",ylab = "dloglike")
+abline(v=p.hat)
+```
+
+
+2. Based on the R dataset in the Lab folder (1030.lecture-mle.RData) reproduce the results presented above for the Poisson distribution. Plot results, maximum likelihood estimates and R code must be submitted.
+First
+```{r}
+lam <-3
+l2 <- function(lam,y=dta$poisson$y){
+  log(lam)*sum(y)-length(y)*lam-sum(log(factorial(y)))
+}
+
+lamhat <- sum(dta$poisson$y)/length(dta$poisson$y)
+
+dl2 <- function(y = dta$poisson$y,lamhat = lamhat){
+  (1/lamhat)*sum(y) - length(y)
+}
+
+par(mfrow=c(1,2))
+plot(dta$poisson$y,type="h",col="red",xlab = "index",ylab = "y")
+abline(h=lam)
+hist(dta$poisson$y,xlab = "y",ylab = "frequency")
+abline(v=lam,col="red")
+```
+
+Second
+```{r}
+lambda <- seq(0,11,by=0.01)
+loglike2 <- sapply(lambda,l2,y=dta$poisson$y)
+head(loglike2)
+dloglike2 <- sapply(lambda,dl2,y=dta$poisson$y)
+head(dloglike2)
+
+par(mfrow=c(1,2))
+plot(lambda,loglike2,type="l",col="red",xlab = "lambda",ylab = "loglike")
+abline(v=lamhat)
+plot(lambda,dloglike2,type="l",col="red",xlab = "lambda",ylab = "dloglike")
+abline(v=lamhat)
+```
+
+
+

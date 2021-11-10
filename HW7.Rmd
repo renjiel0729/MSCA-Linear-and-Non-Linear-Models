@@ -1,0 +1,230 @@
+---
+title: "HW7"
+author: "Renjie Liu"
+date: "3/7/2021"
+output: html_document
+---
+#### 1) The data 'car ins claims.csv' contain the number of car insurance policies, n, and number of claims, y, by various insurance categories, CAR, age of policy holder, AGE, and district where the policy holder lived (DIST=1, for London and other major cities and DIST=0, otherwise).
+```{r}
+car_data <- read.csv('car ins claims.csv')
+```
+
+#### A) Calculate the rate of claims y/n for each category and plot the rates by AGE, CAR and DIST to get an idea of the main effects of these factors.
+```{r}
+car_data$rate <- car_data$y/car_data$n
+par(mfrow=c(2, 2))
+plot(x = car_data$CAR,y = car_data$rate, main="CAR")
+plot(x = car_data$AGE,y = car_data$rate, main="AGE")
+plot(x = car_data$DIST,y  = car_data$rate, main="DIST")
+```
+
+
+#### B) Use Poisson regression to estimate the main effects (each treated as categorical and modelled using indicator variables) and interaction terms.
+```{r}
+car_data$CAR <- as.factor(car_data$CAR)
+car_data$DIST <- as.factor(car_data$DIST)
+car_data$AGE <- as.factor(car_data$AGE)
+
+model1 <- glm(y~offset(log(n))+CAR+DIST+AGE,data=car_data,family=poisson(link = "log"))
+summary(model1)
+```
+```{r}
+# All of the variables are significant. Age all have negative coefficients, and DIST1 has positive coefficients. This means that people live in big cities will have more claim. The CAR all have positive coefficients. The effect on y is getting larger as CAR and AGE get larger compare to age 1 and car 1. 
+```
+#### Interactions
+```{r}
+model <- glm(y~offset(log(n))+AGE*CAR*DIST,data=car_data,family=poisson(link = "log"))
+summary(model)
+```
+```{r}
+# The age variable on its own is still significant. However, CAR and DIST in this model with interactions are not significant. For the interactions, when CAR is 3, the interaction between CAR and AGE are siginificant. However, all other interactions are not significant. 
+```
+
+
+#### C) Fit a Poisson regression model by treating CAR and AGE as continuous variables.
+```{r}
+car_data1 <- read.csv('car ins claims.csv')
+car_data1$rate <- car_data1$y/car_data1$n
+car_data$DIST <- as.factor(car_data$DIST)
+
+
+model2 <- glm(y~offset(log(n))+CAR+DIST+AGE,data=car_data1,family=poisson(link = "log"))
+summary(model2)
+```
+```{r}
+# With all continous variable. The variabels are still all significant. They also have the same effect from using them as categorical variables.
+```
+
+##### 2) The dataset 'Insurance.RData' in the R package MASS consists of the numbers of policyholders of an insurance company who were exposed to risk, and the numbers of car insurance claims made by those policyholders in the third quarter of 1973. Please visit (https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Insurance.html) for variable descriptions.
+```{r}
+library(dplyr)
+library(MASS)
+```
+
+
+#### A) Conduct an exploratory data analysis.
+```{r}
+head(Insurance)
+str(Insurance)
+summary(Insurance)
+sample_n(Insurance,8)
+
+Insurance$rate <- Insurance$Claims/Insurance$Holders
+
+par(mfrow=c(2, 2))
+plot(x = Insurance$District,y = Insurance$rate, main="District")
+plot(x = Insurance$Group,y = Insurance$rate, main="Group")
+plot(x = Insurance$Age,y = Insurance$rate, main="Age")
+
+par(mfrow=c(2, 2))
+plot(Insurance$District)
+plot(Insurance$Group)
+plot(Insurance$Age)
+
+```
+
+#### B) Estimate the Poisson model with District, Group and Age as categorical variables. Do you spot any potential improvements to the model?
+```{r}
+Insurance$District <- as.factor(Insurance$District)
+Insurance$Group <- as.factor(Insurance$Group)
+Insurance$Age <- as.factor(Insurance$Age)
+
+
+model3 <- glm(Claims~offset(log(Holders))+District+Group+Age,data=Insurance,family=quasipoisson(link = "log"))
+summary(model3)
+
+```
+```{r}
+# The data has ordered factoring for Group and Age. The model is using the ordered variabels. Therefore, some of the variables are not signiifcant. For example, District is not significant, and only one sub variable is significant in GROUP and AGE. To improve this, I will convert the variables to no-ordered.
+```
+
+
+```{r}
+Insurance$Group <- factor(Insurance$Group, ordered = FALSE)
+Insurance$Age <- factor(Insurance$Age, ordered = FALSE)
+
+model3 <- glm(Claims~offset(log(Holders))+District+Group+Age,data=Insurance,family=quasipoisson(link = "log"))
+summary(model3)
+```
+
+#### c) Interpret at least two coefficients of the model in B)
+```{r}
+# Now all the sub variables in GROUP and AGE are siginificant. And District4 is also siginificant. The Age variable has negative coefficient, and the impact will get stronger for older age. Therefore, this means that the higher the age the less claims compare to the default. The group has positive coefficient, and the impact will also get stronger for higher gruop. This means that the higher higher the group, the more claims they make compared to the default. 
+```
+
+#### 3) The dataset 'medicare.RData' contains information on the number of visits to physicians by Medicare participants. It also contain information on each participant including:
+hospital stays (numHospStays);
+self health status assessment (statusHealth)
+chronic conditions count (numChronic)
+gender
+years of education (numYearsEduc)
+private insurance (hasPrivIns)
+```{r}
+load('medicare.RData')
+summary(medicare)
+```
+#### A) Prepare box plots of the number of visits to physicians against each of the variables. You may place numerical explanatory variables into a category (e.g., 3+ years of education). Plot the histogram for the number of visits.
+```{r}
+hist(medicare$numVisits, main = 'number of visits')
+
+par(mfrow=c(3, 2))
+
+medicare1 <- medicare
+medicare1$numYearsEduc <- ifelse(medicare1$numYearsEduc>=12,'high education','low education')
+medicare1$numChronic <- ifelse(medicare1$numChronic>=4,'many chronic','less chronic')
+
+
+boxplot(medicare$numVisits ~ medicare$numHospStays, main="Number of Hospital Stays")
+boxplot(medicare$numVisits ~ medicare$statusHealth, main="self health status assessment")
+boxplot(medicare$numVisits ~ medicare1$numChronic,main="chronic conditions count")
+boxplot(medicare$numVisits ~ medicare1$numYearsEduc, main="Years of Education")
+boxplot(medicare$numVisits ~ medicare$gender, main="Gender")
+boxplot(medicare$numVisits ~ medicare$hasPrivIns, main="Has Private Insurance")
+```
+
+
+#### Use numHospStays as y variable
+#### B) Run a Poisson regression with the explanatory variables listed above.
+```{r}
+model5 <- glm(numHospStays~offset(log(numVisits))+statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns,data=medicare,family=poisson(link = "log"))
+summary(model5)
+```
+```{r}
+# Nearly all the variables are significant, but the private insurance varaible is not siginificant in this varialbe. Dispersion is also not accounted in this model.
+```
+
+#### C) Run the quasi-Poisson regression with the explanatory variables listed above. Do you see any evidence of over-dispersion? Explain. Would your assessment of the significance of each variable change from the model in item B)? Explain.
+```{r}
+model6 <- glm(numHospStays~offset(log(numVisits))+statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns,data=medicare,family=quasipoisson(link = "log"))
+summary(model6)
+
+y <- model6$y
+mu.hat <- model6$fitted.values
+plot(mu.hat,(y-mu.hat)^2,col="red")
+```
+```{r}
+# Comparing to the poisson model in B. Less vraibles are significant in this quasi model. For example, the status health excellent is not significant compared to the default. The private insurance is also not significant in this model. I do see the evidence of the over dispersion because the Dispersion parameter for quasipoisson family taken to be 2.407344 larger than 1. 
+```
+
+#### D) Run the negative binomial regression with the explanatory variables listed above. Do you see any evidence of over-dispersion? Explain. Would your assessment of the significance of each variable change from the model in item C)? Explain.
+```{r}
+model7 <- glm.nb(numHospStays~offset(log(numVisits))+statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns,data=medicare,link = log)
+summary(model7)
+
+y <- model7$y
+mu.hat <- model7$fitted.values
+plot(mu.hat,(y-mu.hat)^2,col="red")
+```
+
+```{r}
+# Comparing to the model in c. The significant vraibles changed again. In this negative binomial model, the variables are considered to be more significant than the model in C. For eample, gendermalem, statushealthpoor, number of years education are more significant in this model than the modle in C. In addition, the dispersion is better than the model in C because Dispersion parameter for Negative Binomial(0.628), because it is closer to 1, but still it is over dispersed. 
+```
+
+#### Use Numofvisits as y variable
+#### 3.2 Run a Poisson regression with the explanatory variables listed above.
+```{r}
+model8 <- glm(medicare$numVisits ~ +statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns+numHospStays, data=medicare, family=poisson(link = "log"))
+summary(model8)
+
+```
+
+
+```{r}
+# All the variable are siginificant. Status healthexcellent and gendermale have negative sign, and it means it will decrease the number of visits. The other variables have positive coefficients, and this mean that they will increase the number of visits. 
+```
+
+#### 3.3 Run the quasi-Poisson regression with the explanatory variables listed above. Do you see any evidence of over-dispersion? Explain. Would your assessment of the significance of each variable change from the model in item B)? Explain.
+```{r}
+model9 <- glm(medicare$numVisits ~ +statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns+numHospStays, data=medicare, family=quasipoisson(link = "log"))
+summary(model9)
+
+y <- model9$y
+mu.hat <- model9$fitted.values
+plot(mu.hat,(y-mu.hat)^2,col="red")
+```
+```{r}
+# In this model not all the variables are significant. Gendermale and has private insurance are not as significant compared to the normal poisson model. There is also evidence of over dispersion because Dispersion parameter for quasipoisson family taken to be 5.897597, way higher than 1.
+```
+
+#### 3.4 Run the negative binomial regression with the explanatory variables listed above. Do you see any evidence of over-dispersion? Explain. Would your assessment of the significance of each variable change from the model in item C)? Explain.
+```{r}
+model10 <- glm.nb(medicare$numVisits~statusHealth+numChronic
+              +numYearsEduc+gender+hasPrivIns+numHospStays,data=medicare,link = log)
+summary(model10)
+
+y <- model9$y
+mu.hat <- model9$fitted.values
+plot(mu.hat,(y-mu.hat)^2,col="red")
+```
+
+```{r}
+# In this model the variables are all significant. Compared to the quasipoisson model, the gendermale and has private insurance varaibles are more significant in this model. The dispersion is better compared to the quasipoisson model, but it is still over dispersed because Dispersion parameter for Negative Binomial(2.1793) and is higher than 1.
+```
+
+
+

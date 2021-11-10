@@ -1,0 +1,121 @@
+---
+title: "hw6"
+author: "Renjie Liu"
+date: "2/22/2021"
+output: html_document
+---
+
+**The dataset ‘grad school acceptance.csv’ contains information on GRE, GPA, and undergraduate university rankings. Estimate a binomial model with intercept only using the logit link function. Interpret the intercept coefficient. **
+
+```{r}
+data <- read.csv("/Users/renjieliu/Desktop/Winter21/LNL/HW/HW6/grad school acceptance.csv")
+head(data)
+summary(data)
+
+unique(data$ranking)
+data$ranking <- as.factor(data$ranking)
+```
+
+```{r}
+model1 <- glm(accepted ~ 1,data = data, family = binomial(link = 'logit'))
+summary(model1)
+
+# The model only uses the intercept as the independent variable, and it has a coefficient of -0.765, this indicates that on average, the probability of for acceptance is lower than that of rejection. The probabilities are equal at coefficient = 0.5.
+```
+**Compute the average acceptance rate from the model results.**
+```{r}
+exp(-0.7653)/(1 + exp(-0.7653))
+
+# The average acceptance rate is 31.75%
+```
+
+**Estimate a model with intercept and GPA scores using the logit link function. What is the impact of an unit change in GPA scores on the odds?**
+```{r}
+model2 <- glm(accepted ~ gpa,data = data, family = binomial(link = 'logit'))
+summary(model2)
+
+#Keeping everything else constant, one unit increase in GPA would increase the odds of acceptance by 105.11%.
+```
+
+**Estimate a model with intercept and GPA scores using the logit link function. What is the impact of an unit change in GPA scores on the probability of acceptance for an individual with an average GPA score?**
+```{r}
+p <- seq(0,1,by=0.001)
+dpdx1 <- 1.0511*p*(1-p)
+plot(p,dpdx1,lwd=3,col="black")
+# The graph is the impact of an unit change in GPA scores on the probability of acceptance for an indivisual with an average GPA score
+```
+**Estimate the binomial model with logit link function and all available covariates. Interpret the results, including coefficients, z-values, p-values, and residual deviance.**
+```{r}
+model3 <- glm(accepted ~ .,data = data, family = binomial(link = 'logit'))
+summary(model3)
+
+# The coefficients show the expected results: 1. GRE has a positive coefficient, which means the higher the GRE, the higher the chances of acceptance. 2. GPA also has positive coefficient, so it means that higher GPA the higher chance of acceptance 3. Ranking Taking Rank01 is the default, each subsequent rank decrease the chances of acceptance. The larger the rank number the lower the coefficient, the lower the change for acceptance. 
+
+# Based on the Z values. All the variables are significant at 95% confidence level becasue the p-values are lower than 0.05 because the z value is small enough. 
+
+pchisq(model3$deviance, df=model3$df.residual, lower.tail=FALSE)
+
+#Using the chisquared test for deviance, and got a very small p value of 0.0137, it means the model is significant compared to a saturated model with no x variables at 95% confidence.
+```
+**How does the model with GRE, GPA, and rankings compare with the model with GPA only?**
+```{r}
+anova(model2, model3, test = "Chisq")
+
+# I use the ANOVA test , the two models are significantly different because the pvalue is less than 0.05.
+```
+
+**What is the goodness of fit for the model with GRE, GPA, and rankings?**
+```{r}
+pearson1 <- sum(residuals(model3,type="pearson")^2)
+pearson1
+pchisq(pearson1,df=model3$df.residual,lower.tail=FALSE)
+
+# Based on the chisquared test, a very high p-value means that the model is not significantly different from the saturated model and has good fit.
+```
+**Estimate the binomial probit model using the probit link function. Interpret the results.**
+```{r}
+model4 <- glm(accepted ~ .,data = data, family = binomial(link = 'probit'))
+summary(model4)
+
+# The coefficients have similar significance with the logit model. The absolute value of the coefficients are different, but the positive and negative effect on the dependent variable is the same. Therefore, GRE and GPA all have positive effect on the probability of acceptance, and rank has negative impact on the probability of acceptance.
+```
+
+**The number of deaths from leukemia and other cancers among survivors of the Hiroshima atom bomb are shown in the ‘z1050.hiroshima.RData’, classified by the radiation dose received. The data refer to deaths during the period 1950-59 among survivors who were aged 25 to 64 years in 1950. Obtain a suitable model to describe the dose-response relationship between radiation and the proportional mortality rates for leukemia.**
+```{r}
+load('z1050.hiroshima.RData')
+
+model5 <- glm(cbind(leukemia, other)~dose, dta, family=binomial(link = "logit"))
+summary(model5)
+
+# The coefficients for dose variable has a very low pvalue, so it is significant. The coefficient is also positive, and this means that the higher radiation dose will increase the probability of getting leukemia. 
+
+dta$dose <- as.factor(dta$dose)
+model6 <- glm(cbind(leukemia, other)~dose, dta, family=binomial(link = "logit"))
+summary(model6)
+# The coefficients for the does is still positive with the does as factors. When getting radiation of 100 and 200 will significantly increase the probability of getting leukemia.
+```
+
+**The dataset ‘crash.csv’ consists of drivers involved in a crashes for a given year. The following information was available for each accident: driver’s age cohort (agecat), sex, severity of crash (degree), road user class, and accident frequency (number). Develop a binomial model that explains the proportion of car crashes that are non-casualty versus injury or fatal. Explain your reasoning and the model diagnostics. Conduct preliminary exploratory data analysis if necessary to support your reasoning. Please note that you will have to organized the data before you are able to apply the glm function.**
+```{r}
+crash <- read.csv("/Users/renjieliu/Desktop/Winter21/LNL/HW/HW6/crash.csv")
+summary(crash)
+str(crash)
+
+crash$sex[crash$sex == "0-male"] <- "male"
+crash$roaduserclass[crash$roaduserclass == "0-car"] <- "car"
+crash$agecat[crash$agecat == "040-49"] <- "40-49"
+crash$level <- 1
+crash$level[crash$degree == 'noncasualty'] <- 0
+
+crash$casualty <- crash$level * crash$number
+crash$noncasualty <- (1-crash$level)*crash$number
+```
+
+```{r}
+crashmodel<- glm(cbind(casualty,noncasualty) ~ agecat + roaduserclass + sex, data = crash, family = binomial(link = 'logit'))
+summary(crashmodel)
+
+# All the variables are significant. The probability of casualty increase if the age increases because the coefficients are positive. Car is the safest because it is negative, and it will decreases the probability of casualty compare to default. Motorcycle is the least safe because it has the largest coefficient for the roaduserclass category. Gender male also can have lower probability of casualty because the coefficient is negative. 
+```
+
+

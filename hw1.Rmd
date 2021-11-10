@@ -1,0 +1,81 @@
+---
+title: "hw1"
+author: "Renjie Liu"
+date: "1/12/2021"
+output: html_document
+---
+
+*1.	For each of the situations below, identify the response and explanatory variables, variable types, and the generalized linear model that is well-suited to model the data. Make sure to justify your answer. Write down the linear predictor as well as the link function.
+*The effect of age, sex, height, daily food intake and minutes of daily exercise on a person’s weight.
+<br> Response: person’s weight type: continuous <br>
+Explanatory variables: <br>
+ age: discrete (recorded in years) <br>
+ sex:nominal (male and female) <br>
+ height: continuous (measured in feet) <br>
+ daily food intake:continuous (measured in calories) <br>
+ minutes of daily exercise: discrete (measured in mintues <br>
+ Linear predictor:  xTiβ=β0+ β1age + β2sex+ β3heigt + β4dailyfoodintak + β5minutesofdailyexercise <br>
+ Link function : g(μi)=μi=xTiβ <br>
+
+
+
+
+•	The effect of sex, age, GPA, major, prior years of work experience, and prior income levels on whether a full-time graduate students finds employment upon graduation
+Response: full time graduate student finds employment upon graduation or not. Type = cagegorical (yes or no).
+Explanatory variables:<br> 
+sex: nominal <br>
+age: discrete <br>
+GPA: continous (measured as number) <br>
+major: nominal  (not number) <br>
+Prior years of work experience: discrete (int) <br>
+prior income levels: ordinal  (measured in lvls ) <br>
+Linear Predictor: xTiβ=β0+β1Sex+β2Age+β3GPA+β4Major+β5WorkExp+β6IncomeLevel <br>
+Link function g(μi)=ln(μi1−μi)=xTiβ <br>
+
+
+
+•	The number of mortgage loan defaults in a given year by different counties across the United States. For each household/borrower information on income, loan interest rate, age, debt, loan to value at origination are available.
+Response: number of mortgage loan defaults in a year by different counties across the us.  Type: discrete counts.
+Explanatory:  <br>
+borrowers’ income: continueous (measure in numbers) <br>
+interest rate: contineous  (measure in numbers) <br>
+age: discrete (int) <br>
+debt: contineous (number) <br>
+loan to value : contineous (number) <br>
+Linear Predictor:  xTiβ=β0+β1Income+β2InterestRate+β3Age+β4Debt+β5LoanToValue <br>
+Link function g(μi)=ln(μi)=xTiβ <br>
+
+ 
+ 
+
+2.	Assume that the linear predictor, xTiβ, takes the values between −3−3 and 33 equally spaced by 0.010.01. If the link function is the natural logarithm, log(μi)=xTiβlog(μi)=xiTβ, then compute and plot the mean response, μiμi, against the linear predictor, xTiβxiTβ.
+
+```{r}
+#the mean response is the inverse of the logit function with respect to the linear predictor
+
+x<- seq(-3,3,0.01)
+y<- exp(x)
+plot(x,y)
+
+```
+
+
+
+
+3.	Assume that the linear predictor, xTiβxiTβ, takes the values between −5−5 and 55 equally spaced by 0.010.01. If the link function is logit, log(μi1−μi)=xTiβloga(μi1−μi)=xiTβ, then compute and plot the mean response, μiμi, against the linear predictor, xTiβxiTβ.
+```{r}
+x<- seq(-5,5,0.01)
+y<- exp(x)/(1+exp(x))
+plot(x,y)
+```
+
+
+
+4.	Assume that the linear predictor, xTiβxiTβ, takes the values between 0.50.5 and 55 equally spaced by 0.010.01. If the link function is negative inverse, −μ−1i=xTiβ−μi−1=xiTβ, compute and plot the mean response, μiμi, against the linear predictor, xTiβxiTβ.
+```{r}
+x<- seq(0.5,5,0.01)
+y<- 1/(-x)
+plot(x,y)
+```
+
+

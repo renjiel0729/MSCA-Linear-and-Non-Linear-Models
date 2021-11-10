@@ -1,0 +1,79 @@
+---
+title: "HW5"
+author: "Renjie Liu"
+date: "2/21/2021"
+output: html_document
+---
+**6.5 Homework**
+
+**Using the dataset   z1040.rpois-linear.RData’’, estimate the Poisson model with a linear predictor**
+```{r}
+load('z1040.rpois-linear.RData')
+str(regdta)
+summary(regdta)
+```
+**calculate lbmax by hand**
+```{r}
+model1 <- glm(y~x2+x3, data=regdta, family=poisson(link="identity"))
+model1
+```
+
+```{r}
+yhat <- model1$fitted.values
+
+lbmax <- sum(regdta$y*log(regdta$y)) - sum(regdta$y) - sum(factorial(regdta$y))
+lbmax
+
+```
+
+**Calculate l(b;y), assuming μi=b1+b2x2+b3x3.**
+```{r}
+lb <- sum(regdta$y*log(yhat)) - sum(yhat) - sum(factorial(regdta$y))
+lb
+```
+
+**Calculate D assuming ui = b1 + b2x2 + b3x3 Compare it with the output from glm function in R.**
+```{r}
+D <- 2*(lbmax - lb)
+D
+
+model1$deviance
+# The deviance are very close between hand calculation and from model
+```
+
+**Calculate D, assuming μi=b1+b2x2. Compare it with the output from glm function in R.**
+```{r}
+model2 <- glm(y~x2, data=regdta, family=poisson(link="identity"))
+model2
+
+yhat <- model2$fitted.values
+lb <- sum(regdta$y*log(yhat)) - sum(yhat) - sum(factorial(regdta$y))
+lb
+D <- 2*(lbmax - lb)
+D
+
+model2$deviance
+#The deviance are very close between hand calculation and from model
+```
+
+**Calculate D, assuming μi=b1. Compare it with the output from glm function in R.**
+```{r}
+model3 <- glm(y~1, data=regdta, family=poisson(link="identity"))
+model3
+
+yhat <- model3$fitted.values
+lb <- sum(regdta$y*log(yhat)) - sum(yhat) - sum(factorial(regdta$y))
+lb
+
+D <- 2*(lbmax - lb)
+D
+
+model3$deviance
+#The deviance are very close between hand calculation and from model
+```
+
+
+**Explain why D changes from model to model.**
+
+*Based on the function of deviance, deviance is the difference between the likelihood for the saturated model and the unsatured model. When we use different variables to predict y, we will get different yhat. Therefore, we will get different likelihood because it is calculated using the y_hat, the y we predicted using different variables. Log Lambda will also change because the likehood is part of lambda. Since 2 x Log lambda is the deviance, deviance will also changes from model to model by using different variabels to predict y*
+

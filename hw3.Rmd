@@ -1,0 +1,306 @@
+---
+title: "HW3"
+author: "Renjie Liu"
+date: "2/1/2021"
+output: html_document
+---
+HW 4.4 Q1
+1. Derive the analytical version of the Newton-Raphson algorithm (including f(x) and f′(x) for each expression below (separately). For each expression below, implement the Newton-Raphson algorithm, and find at least one root for each non-linear function below. Also plot f(x) around the solution(s). Prepare a data table with values for x, f(x) and f′(x), and err for each iteration.
+
+Q1.1
+```{r}
+library(ggplot2)
+tol <- 10^(-10)
+err <- 10^5
+x0 <- 0.1
+```
+
+
+Newton-Raphson x0 = 0.1
+```{r}
+x <- NULL
+f <- function(x)(3*x^2 - 2*x - 4)
+fp <- function(x)(6*x - 2)
+k <- 0
+dta <- NULL
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for x0 = 0.1
+```{r}
+
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+
+x1 <- seq(-2,2,0.01)
+ggplot(as.data.frame(cbind(x = x1, y = f(x1))), aes(x, y)) + geom_line(size = 1, color = "red")+ geom_hline(yintercept=0)
+```
+
+Newton-Raphson try x0 = 2
+```{r}
+x0 <- 2
+x <- NULL
+f <- function(x)(3*x^2 - 2*x - 4)
+fp <- function(x)(6*x - 2)
+k <- 0
+dta <- NULL
+err <- 10^5
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for x0 = 2
+```{r}
+
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+```
+
+Q1.2.
+Newton-Raphson x0 = 0
+```{r}
+x0 <- 0
+x <- NULL
+f <- function(x)(exp(x)-x^4)
+fp <- function(x)(exp(x) - 4*x^3)
+k <- 0
+dta <- NULL
+err <- 10^5
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for x0 = 0
+```{r}
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+
+x1 <- seq(-2,2,0.01)
+ggplot(as.data.frame(cbind(x = x1, y = f(x1))), aes(x, y)) + geom_line(size = 1, color = "red")+ geom_hline(yintercept=0)
+```
+
+Newton-Raphson x0 = 1
+```{r}
+x0 <- 1
+x <- NULL
+f <- function(x)(exp(x)-x^4)
+fp <- function(x)(exp(x) - 4*x^3)
+k <- 0
+dta <- NULL
+err <- 10^5
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for x0 = 1
+```{r}
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+```
+
+
+
+
+Q1.3
+Newton-Raphson x0 = 0.1
+```{r}
+x0 <- 0.1
+x <- NULL
+f <- function(x)(x^3+4*x^2-10)
+fp <- function(x)(3*x^2+8*x)
+k <- 0
+dta <- NULL
+err <- 10^5
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for x0= 0.1
+```{r}
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+
+x1 <- seq(-4,4,0.01)
+ggplot(as.data.frame(cbind(x = x1, y = f(x1))), aes(x, y)) + geom_line(size = 1, color = "red")+ geom_hline(yintercept=0)
+```
+
+
+4.
+Newton-Raphson x0 = 2
+```{r}
+x0 <- 2
+x <- NULL
+f <- function(x)(x-exp(-(x^2)))
+fp <- function(x)(1+2*x*exp(-x^2))
+k <- 0
+dta <- NULL
+err <- 10^5
+
+while (err>tol){
+    x <- x0 - f(x0)/fp(x0)
+    err <- abs(x-x0)
+    dta <- rbind(dta,data.frame(k=k,x=x0,f=f(x0),fp=fp(x0),err=err))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table for  x0 = 2
+```{r}
+par(mfrow=c(2,2))
+plot(dta$k,dta$x,type="l",col="blue",xlab="k",ylab="x")
+plot(dta$k,dta$f,type="l",col="blue",xlab="k",ylab="f")
+plot(dta$k,dta$fp,type="l",col="blue",xlab="k",ylab="fp")
+plot(dta$k,dta$err,type="l",col="blue",xlab="k",ylab="err or step")
+
+dta
+
+x1 <- seq(-5,5,0.01)
+ggplot(as.data.frame(cbind(x = x1, y = f(x1))), aes(x, y)) + geom_line(size = 1, color = "red")+ geom_hline(yintercept=0)
+```
+
+Q2. Write a R code for f(x) and Df(x). Run the Newton-Raphson method and search for the solution. Prepare a table with values for x, f(x), Df−1(x), and err for each iteration. Explain what is happening during the iterations. Is the algorithm converging? Why or why not? Choose your initial values carefully.
+Newton-Raphson
+```{r}
+tol <- 10^(-15)
+err <- 10^5
+x0 <- matrix(c(2,2,2))
+
+x <- NULL
+f <- function(x)(matrix(c(x[1]+x[2]+x[3]^2-12,x[1]^2-x[2]+x[3]-2,2*x[1]^2-x[2]^2+x[3]-1)))
+Df <- function(x)(matrix(c(1,1,2*x[3],2*x[1],-1,1,4*x[1],-2*x[2],1),byrow=TRUE,nrow=3))
+
+k <- 0
+dta <- NULL
+
+while (err>tol){
+    x <- x0 - solve(Df(x0)) %*% f(x0)
+    err <- max(abs(x-x0))
+    dta <- rbind(dta,data.frame(k=rep(k,length(x0)),x=x0,f=f(x0),invDf=solve(Df(x0)),err=x-x0))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+plot and table
+```{r}
+dta1 <- dta[seq(1, nrow(dta) - 2, by = 3), ]
+dta2 <- dta[seq(2, nrow(dta) - 1, by = 3), ]
+dta3 <- dta[seq(3, nrow(dta) - 0, by = 3), ]
+  
+par(mfrow=c(1,3))
+plot(dta1$k, dta1$x, type="l", col="blue", xlab="k", ylab="x1")
+plot(dta2$k, dta2$x, type="l", col="blue", xlab="k", ylab="x2")
+plot(dta3$k, dta3$x, type="l", col="blue", xlab="k", ylab="x3")
+
+
+dta
+
+#During the iteration, the Newton-Raphson algorithm try to get the the root for the equation system. The root produced from the Newton-Raphson will depended on the X0 starting point. The algorithm try to find a very low err which is the distance between the last x and the curret x. When the err is close enough, this means that the x is almost the same. The Newton-Raphson algorithm is converging because the values of x1,x2 and x3 stabilize after iterations, and the err is becoming lower than tol. 
+```
+
+Q3.In the example above, a solution for a system of two non-linear equations was found from a starting value x0=c(1,1). Find a different solution assuming x0=c(−1,1). Prepare plots showing the conversion of each variable as well as a table with all key components of Newton-Raphson method for each iteration.
+```{r}
+x1 <- seq(-1,1,length.out=50)
+x2 <- sqrt((exp(0.5)-1-x1^2)/2)
+plot(x1,x2,xaxt="n",yaxt="n",type="l",col="red",xlim=c(-1,1),ylim=c(-0.5,1))
+
+par(new=TRUE)
+x1 <- seq(-1,1,length.out=50)
+x2 <- x1^2 - 0.2
+plot(x1,x2,type="l",col="blue",xlim=c(-1,1),ylim=c(-0.5,1),main="Two Solutions")
+```
+
+Newton-Raphson
+```{r}
+tol <- 10^(-10)
+err <- 10^5
+x0 <- matrix(c(-1,1))
+
+
+x <- NULL
+f <- function(x)(matrix(c(log(x[1]^2+2*x[2]^2+1)-0.5,x[2]-x[1]^2+0.2)))
+Df <- function(x)(matrix(c(2*x[1]/(x[1]^2+2*x[2]^2+1),4*x[2]/(x[1]^2+2*x[2]^2+1),-2*x[1],1),byrow=TRUE,nrow=length(x)))
+k <- 0
+dta <- NULL
+
+while (err>tol){
+    x <- x0 - solve(Df(x0)) %*% f(x0)
+    err <- max(abs(x-x0))
+    dta <- rbind(dta,data.frame(k=rep(k,length(x0)),x=x0,f=f(x0),invDf=solve(Df(x0)),err=x-x0))
+    x0 <- x
+    k <- k + 1
+}
+```
+
+
+plot and table 
+```{r}
+dta1 <- aggregate(x~k,dta,FUN=head,1)
+dta2 <- aggregate(x~k,dta,FUN=tail,1)
+
+par(mfrow=c(1,2))
+plot(dta1$k,dta1$x,type="l",col="blue",xlab="k",ylab="x1")
+plot(dta2$k,dta2$x,type="l",col="blue",xlab="k",ylab="x2")
+
+dta
+dta1
+dta2
+```
+
